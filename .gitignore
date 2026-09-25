@@ -92,3 +92,4 @@ logs/
 # uv / pip
 pip-log.txt
 pip-delete-this-directory.txt
+INSTRUCTIONS.md
