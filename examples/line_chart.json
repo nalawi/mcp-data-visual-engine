@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "title": "Monthly Revenue",
+    "subtitle": "2026 Fiscal Year"
+  },
+  "data": {
+    "source": "inline",
+    "records": [
+      {"month": "Jan", "revenue": 120000, "cost": 80000, "profit": 40000},
+      {"month": "Feb", "revenue": 135000, "cost": 85000, "profit": 50000},
+      {"month": "Mar", "revenue": 142000, "cost": 90000, "profit": 52000},
+      {"month": "Apr", "revenue": 158000, "cost": 95000, "profit": 63000},
+      {"month": "May", "revenue": 165000, "cost": 100000, "profit": 65000},
+      {"month": "Jun", "revenue": 180000, "cost": 110000, "profit": 70000}
+    ]
+  },
+  "visual": {
+    "type": "line",
+    "smooth": true,
+    "line_width": 3,
+    "show_values": true
+  },
+  "encoding": {
+    "x": "month",
+    "y": "revenue",
+    "color": "profit"
+  },
+  "layout": {
+    "width": 800,
+    "height": 500,
+    "xaxis_title": "Month",
+    "yaxis_title": "Revenue ($)",
+    "legend_position": "top"
+  },
+  "theme": {
+    "name": "corporate"
+  },
+  "output": {
+    "format": "html",
+    "dpi": 150
+  }
+}

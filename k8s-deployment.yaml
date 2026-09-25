@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dv1-visualization-engine
+  namespace: dv1
+  labels:
+    app: dv1-visualization-engine
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dv1-visualization-engine
+  template:
+    metadata:
+      labels:
+        app: dv1-visualization-engine
+    spec:
+      containers:
+      - name: api
+        image: dv1-visualization-engine:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DV1_REDIS_URL
+          value: "redis://redis-service:6379/0"
+        - name: DV1_CACHE_ENABLED
+          value: "true"
+        - name: DV1_CACHE_TTL
+          value: "3600"
+        - name: DV1_LOG_LEVEL
+          value: "INFO"
+        - name: DV1_MAX_PAYLOAD_SIZE
+          value: "10485760"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dv1-api-service
+  namespace: dv1
+spec:
+  selector:
+    app: dv1-visualization-engine
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: dv1
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: dv1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dv1-ingress
+  namespace: dv1
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: dv1.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dv1-api-service
+            port:
+              number: 8000
